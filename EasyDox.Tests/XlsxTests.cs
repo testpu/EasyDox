@@ -97,7 +97,7 @@ namespace EasyDox.Tests
         {
             var xdoc = new XmlDocument();
             xdoc.Load("XlsxSharedStrings.xml");
-            var fields = Xlsx.GetFields(xdoc).ToArray();
+            var fields = Xlsx.GetStringFields(xdoc).ToArray();
 
             Assert.AreEqual(4, fields.Length);
 
@@ -121,19 +121,20 @@ namespace EasyDox.Tests
             stream.Position = 0;
             xdoc2.Load(stream);
 
-            var dict = new Dictionary<string, string>()
+            var replacements = new Dictionary<string, string>()
             {
                 {"Доверенность", "123-456/АГ"},
                 {"Адрес",  "Петропавловск-Камчатский"},
                 {"Фамилия", "Иванов И.П."},
             };
 
+            var sheetDocs = new List<XmlDocument>();
             var engine = new Engine();
-            Xlsx.ReplaceMergeFieldsAndReturnMissingFieldNames(xdoc2, dict, engine);
+            Xlsx.ReplaceMergeFieldsAndReturnMissingFieldNames(xdoc2, sheetDocs, replacements, engine);
 
-            var fields = Xlsx.GetFields(xdoc2);
+            var fields = Xlsx.GetStringFields(xdoc2);
 
-            Assert.AreEqual("  На основании доверенности № 123-456/АГ в лице Иванов И.П., проживающий по адресу: Петропавловск-Камчатский ", fields.Single().Value);
+            Assert.AreEqual("  На основании доверенности № 123-456/АГ в лице Иванов И.П., проживающий по адресу: Петропавловск-Камчатский ", fields.Single().StringValue);
         }
 
         [TestMethod, DeploymentItem("Invoice.xlsx")]
